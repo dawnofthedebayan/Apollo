@@ -1,9 +1,0 @@
-# 1. Ignore everything
-*
-
-# 2. Allow Git to traverse into folders
-!*/
-
-# 3. Allow everything inside 05-idea and 07-Apollo
-!05-idea/**
-!07-Apollo/**
