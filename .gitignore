@@ -1,19 +1,9 @@
-cat > .gitignore << 'EOF'
-# macOS junk
-.DS_Store
-.DS_Store?
-._*
+# 1. Ignore everything
+*
 
-# Obsidian workspace (optional - remove if you want to sync this too)
-.obsidian/workspace.json
-.obsidian/cache
+# 2. Allow Git to traverse into folders
+!*/
 
-# Python cache
-__pycache__/
-*.pyc
-*.pyo
-.env
-
-# Node
-node_modules/
-EOF
+# 3. Allow everything inside 05-idea and 07-Apollo
+!05-idea/**
+!07-Apollo/**
