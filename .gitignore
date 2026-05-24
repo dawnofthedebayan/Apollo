@@ -1,0 +1,19 @@
+cat > .gitignore << 'EOF'
+# macOS junk
+.DS_Store
+.DS_Store?
+._*
+
+# Obsidian workspace (optional - remove if you want to sync this too)
+.obsidian/workspace.json
+.obsidian/cache
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# Node
+node_modules/
+EOF
