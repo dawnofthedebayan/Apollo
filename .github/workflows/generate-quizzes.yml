@@ -29,6 +29,7 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           QUIZ_INPUT_DIR:  ${{ github.workspace }}/05-idea
           QUIZ_OUTPUT_DIR: ${{ github.workspace }}/07-Apollo/05-idea
+          QUIZ_HTML_DIR: ${{ github.workspace }}/docs/05-idea
         run: python 07-Apollo/00-code/knowledge_agent/knowledge_agent.py
 
       - name: Generate quiz manifest

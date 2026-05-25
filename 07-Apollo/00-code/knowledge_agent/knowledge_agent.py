@@ -132,7 +132,7 @@ def mark_as_processed(tracker_path: Path, filename: str) -> None:
 
 
 # ── Core processing ───────────────────────────────────────────────────────────
-def process_folder(folder_path: str, output_dir: str) -> int:
+def process_folder(folder_path: str, output_dir: str, quiz_html_dir: str) -> int:
     folder = Path(folder_path).resolve()
     output = Path(output_dir).resolve()
 
@@ -140,7 +140,7 @@ def process_folder(folder_path: str, output_dir: str) -> int:
     # Script lives at: 07-Apollo/00-code/knowledge_agent/knowledge_agent.py
     # docs lives at:   07-Apollo/docs/
     SCRIPT_DIR = Path(__file__).resolve().parent
-    docs_output = SCRIPT_DIR / "docs" / output.name   # e.g. docs/02-idea/
+    docs_output = Path(quiz_html_dir).resolve()
     docs_output.mkdir(parents=True, exist_ok=True)
 
     if not folder.exists():
@@ -214,4 +214,8 @@ if __name__ == "__main__":
         "QUIZ_OUTPUT_DIR",
         "/Users/debayanbhattacharya/Library/Mobile Documents/iCloud~md~obsidian/Documents/Debayan_Personal/07-Apollo/05-idea",
     )
-    process_folder(input_folder, output_folder)
+    quiz_html_dir = os.environ.get(
+        "QUIZ_HTML_DIR",
+        "/Users/debayanbhattacharya/Library/Mobile Documents/iCloud~md~obsidian/Documents/Debayan_Personal/docs/05-idea",
+    )
+    process_folder(input_folder, output_folder, quiz_html_dir)
