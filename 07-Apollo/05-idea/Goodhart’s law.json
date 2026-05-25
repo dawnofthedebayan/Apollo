@@ -1,0 +1,246 @@
+{
+  "file": "Goodhart’s law.md",
+  "topic": "Goodhart's Law",
+  "questions": [
+    {
+      "question": "Who originally formulated Goodhart's Law?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Marilyn Strathern"
+        },
+        {
+          "label": "B",
+          "text": "Charles Goodhart"
+        },
+        {
+          "label": "C",
+          "text": "Peter Drucker"
+        },
+        {
+          "label": "D",
+          "text": "Frederick Taylor"
+        }
+      ],
+      "correct_answer": "B",
+      "explanation": "The document states that Goodhart's Law was originally formulated by British economist Charles Goodhart.",
+      "source": "document"
+    },
+    {
+      "question": "According to the document, what happens to a proxy metric when it is turned into a target tied to incentives?",
+      "options": [
+        {
+          "label": "A",
+          "text": "It becomes a more accurate measure of the underlying goal"
+        },
+        {
+          "label": "B",
+          "text": "People optimize for the metric itself rather than the underlying goal"
+        },
+        {
+          "label": "C",
+          "text": "The metric becomes physically inseparable from the goal"
+        },
+        {
+          "label": "D",
+          "text": "The metric remains unchanged but people work harder"
+        }
+      ],
+      "correct_answer": "B",
+      "explanation": "The document explains that once a metric is turned into a target tied to incentives, people will optimize for the metric itself rather than the underlying goal, degrading the metric's value.",
+      "source": "document"
+    },
+    {
+      "question": "A software company wants to improve code quality and decides to measure 'number of bugs fixed per week' as a key performance indicator tied to bonuses. Based on Goodhart's Law, what is the most likely unintended consequence?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Developers will write more bug-free code from the start"
+        },
+        {
+          "label": "B",
+          "text": "Developers may introduce trivial, easy-to-fix bugs to inflate their bug-fix count"
+        },
+        {
+          "label": "C",
+          "text": "The company will see a steady improvement in overall software quality"
+        },
+        {
+          "label": "D",
+          "text": "Developers will ignore the metric and focus on their work"
+        }
+      ],
+      "correct_answer": "B",
+      "explanation": "This applies the core idea of Goodhart's Law: when a metric (bugs fixed) becomes a target tied to incentives, people will game the system to achieve the metric, potentially by introducing trivial bugs to fix, rather than improving actual code quality.",
+      "source": "document"
+    },
+    {
+      "question": "Why does the document suggest that the Soviet nail factory example illustrates the failure of using a single metric as a target?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Because the factory workers were not skilled enough to produce standard nails"
+        },
+        {
+          "label": "B",
+          "text": "Because the factory was state-owned and lacked profit incentives"
+        },
+        {
+          "label": "C",
+          "text": "Because each change in the metric (weight vs. quantity) led to extreme, useless outcomes that satisfied the metric but not the goal"
+        },
+        {
+          "label": "D",
+          "text": "Because the nails were made of poor-quality materials"
+        }
+      ],
+      "correct_answer": "C",
+      "explanation": "The document describes how targeting weight led to giant useless nails, and targeting quantity led to microscopic nails. Each metric was 'achieved' but the actual goal (useful nails) was not met, demonstrating how a single metric can be gamed.",
+      "source": "document"
+    },
+    {
+      "question": "The document mentions that Peter Drucker's quote 'What gets measured gets managed' is often contrasted with Goodhart's Law. Based on the document's analysis, what is the most accurate evaluation of this contrast?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Drucker's quote is always correct and Goodhart's Law is a rare exception"
+        },
+        {
+          "label": "B",
+          "text": "Drucker's quote ignores the reality of gaming the system, which Goodhart's Law highlights"
+        },
+        {
+          "label": "C",
+          "text": "Both ideas are identical and describe the same phenomenon"
+        },
+        {
+          "label": "D",
+          "text": "Goodhart's Law disproves Drucker's quote entirely in all situations"
+        }
+      ],
+      "correct_answer": "B",
+      "explanation": "The document explicitly notes that Drucker's quote 'often ignores the reality of gaming the system,' which is the central insight of Goodhart's Law. This is a nuanced evaluation — not a complete refutation, but a critical limitation.",
+      "source": "document"
+    },
+    {
+      "question": "What is the most well-known, simple statement of Goodhart's Law?",
+      "options": [
+        {
+          "label": "A",
+          "text": "What gets measured gets managed"
+        },
+        {
+          "label": "B",
+          "text": "When a measure becomes a target, it ceases to be a good measure"
+        },
+        {
+          "label": "C",
+          "text": "Correlation does not imply causation"
+        },
+        {
+          "label": "D",
+          "text": "All models are wrong, but some are useful"
+        }
+      ],
+      "correct_answer": "B",
+      "explanation": "This is the widely recognized popular phrasing of Goodhart's Law, attributed to anthropologist Marilyn Strathern.",
+      "source": "llm"
+    },
+    {
+      "question": "Which of the following concepts is most closely related to Goodhart's Law and describes perverse incentives leading to counterproductive outcomes?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Occam's Razor"
+        },
+        {
+          "label": "B",
+          "text": "The Cobra Effect"
+        },
+        {
+          "label": "C",
+          "text": "The Pareto Principle"
+        },
+        {
+          "label": "D",
+          "text": "The Dunning-Kruger Effect"
+        }
+      ],
+      "correct_answer": "B",
+      "explanation": "The Cobra Effect is a classic example of perverse incentives where an attempted solution makes the problem worse, directly related to Goodhart's Law. The document also lists it as a related concept.",
+      "source": "llm"
+    },
+    {
+      "question": "In modern healthcare, hospitals are sometimes measured on patient readmission rates, with penalties for high rates. Based on Goodhart's Law, what is a plausible real-world gaming behavior that could emerge?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Hospitals invest more in preventive care to keep patients healthy"
+        },
+        {
+          "label": "B",
+          "text": "Hospitals may keep patients admitted longer or delay discharge to avoid a readmission being counted"
+        },
+        {
+          "label": "C",
+          "text": "Doctors prescribe more effective medications to reduce complications"
+        },
+        {
+          "label": "D",
+          "text": "Patients are given better follow-up care instructions"
+        }
+      ],
+      "correct_answer": "B",
+      "explanation": "When readmission rates become a penalized target, hospitals may game the system by keeping patients longer (so any return is not a 'readmission' within the window) or delaying discharge, rather than improving actual care quality.",
+      "source": "llm"
+    },
+    {
+      "question": "A common criticism of Goodhart's Law is that it can be overstated. In which scenario would Goodhart's Law be LEAST applicable?",
+      "options": [
+        {
+          "label": "A",
+          "text": "A sales team is measured on number of customer calls made per day"
+        },
+        {
+          "label": "B",
+          "text": "A student's grade is based on a single final exam score"
+        },
+        {
+          "label": "C",
+          "text": "A factory is measured on the purity of a chemical compound, where purity is tested by an independent lab"
+        },
+        {
+          "label": "D",
+          "text": "A teacher's bonus is tied to student standardized test scores"
+        }
+      ],
+      "correct_answer": "C",
+      "explanation": "If the metric (chemical purity) is physically inseparable from the goal (producing pure chemicals) and is verified by an independent third party, it is much harder to game without actually achieving the goal. This aligns with the 'Perfect Proxies' counterargument mentioned in the document.",
+      "source": "llm"
+    },
+    {
+      "question": "In the context of machine learning, Goodhart's Law manifests when a model is optimized on a specific evaluation metric (e.g., accuracy on a test set) that diverges from the true objective. What advanced technique is specifically designed to mitigate this problem by training the model to directly optimize for a downstream metric using a differentiable approximation?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Gradient clipping"
+        },
+        {
+          "label": "B",
+          "text": "Reinforcement Learning from Human Feedback (RLHF)"
+        },
+        {
+          "label": "C",
+          "text": "Dropout regularization"
+        },
+        {
+          "label": "D",
+          "text": "Principal Component Analysis (PCA)"
+        }
+      ],
+      "correct_answer": "B",
+      "explanation": "RLHF is specifically designed to align model outputs with complex human preferences rather than a simple proxy metric. It uses human feedback as a reward signal, attempting to bypass the Goodhart effect where models would otherwise optimize a narrow metric (like next-word prediction) at the expense of helpfulness, honesty, and harmlessness.",
+      "source": "llm"
+    }
+  ]
+}
