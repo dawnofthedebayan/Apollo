@@ -36,13 +36,13 @@ jobs:
           python3 - <<'EOF'
           import re, json, pathlib
 
-          quizzes_dir = pathlib.Path("Debayan_Personal/07-Apollo/02-idea")
+          quizzes_dir = pathlib.Path("07-Apollo/02-idea")
           files = sorted(f.name for f in quizzes_dir.glob("*.json"))
 
           manifest = [{"folder": "02-idea", "label": "Ideas", "files": files}]
           manifest_js = json.dumps(manifest, indent=2)
 
-          html_path = pathlib.Path("Debayan_Personal/07-Apollo/docs/index.html")
+          html_path = pathlib.Path("07-Apollo/docs/index.html")
           html = html_path.read_text()
           updated = re.sub(
               r'(const QUIZ_MANIFEST = )\[.*?\];',
@@ -57,5 +57,5 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add Debayan_Personal/07-Apollo/02-idea/ Debayan_Personal/07-Apollo/docs/
+          git add 07-Apollo/02-idea/ 07-Apollo/docs/
           git diff --staged --quiet || (git commit -m "chore: regenerate quizzes [skip ci]" && git push)
