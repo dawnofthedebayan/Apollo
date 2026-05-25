@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Apollo — Knowledge Quizzes</title>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #0e0e0e;
+      --surface:    #161616;
+      --surface-2:  #1e1e1e;
+      --surface-3:  #252525;
+      --border:     #2a2a2a;
+      --text:       #e4e4e4;
+      --muted:      #777;
+      --faint:      #444;
+      --primary:    #4f98a3;
+      --primary-h:  #3d8090;
+      --success:    #6daa45;
+      --error:      #d163a7;
+      --gold:       #e8af34;
+      --radius:     12px;
+      --font:       'Satoshi', sans-serif;
+      --transition: 160ms cubic-bezier(0.16,1,0.3,1);
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── NAV ── */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+      background: oklch(from var(--bg) l c h / 0.85);
+      backdrop-filter: blur(12px);
+    }
+    .nav-logo { font-weight: 700; font-size: 1.05rem; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
+    .nav-logo span { color: var(--primary); }
+    .nav-breadcrumb { font-size: 0.82rem; color: var(--muted); display: flex; align-items: center; gap: 0.4rem; }
+    .nav-breadcrumb .sep { color: var(--faint); }
+    .nav-breadcrumb .crumb { cursor: pointer; transition: color var(--transition); }
+    .nav-breadcrumb .crumb:hover { color: var(--text); }
+    .nav-breadcrumb .crumb.active { color: var(--text); }
+
+    /* ── PAGES ── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+
+    /* ── HOME PAGE ── */
+    .page-header { margin-bottom: 2.5rem; }
+    .page-header h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 700; }
+    .page-header p  { color: var(--muted); margin-top: 0.5rem; font-size: 0.95rem; }
+
+    .folder-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+      gap: 1rem;
+    }
+    .folder-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.4rem 1.5rem;
+      cursor: pointer;
+      transition: border-color var(--transition), background var(--transition), transform var(--transition);
+      position: relative; overflow: hidden;
+    }
+    .folder-card:hover { border-color: var(--primary); background: var(--surface-2); transform: translateY(-2px); }
+    .folder-card:active { transform: translateY(0); }
+    .folder-icon { font-size: 1.6rem; margin-bottom: 0.75rem; }
+    .folder-name { font-weight: 600; font-size: 1rem; }
+    .folder-meta { font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem; }
+    .folder-pill {
+      position: absolute; top: 1rem; right: 1rem;
+      font-size: 0.7rem; font-weight: 600; padding: 0.2rem 0.55rem;
+      background: var(--surface-3); border-radius: 99px; color: var(--muted);
+      border: 1px solid var(--border);
+    }
+    .loading-state, .empty-state {
+      text-align: center; padding: 4rem 2rem; color: var(--muted);
+    }
+    .spinner {
+      width: 28px; height: 28px; border: 2px solid var(--border);
+      border-top-color: var(--primary); border-radius: 50%;
+      animation: spin 0.7s linear infinite; margin: 0 auto 1rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── TOPIC LIST PAGE ── */
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.82rem; color: var(--muted); cursor: pointer;
+      margin-bottom: 1.8rem; transition: color var(--transition);
+      background: none; border: none; padding: 0;
+    }
+    .back-btn:hover { color: var(--text); }
+
+    .quiz-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+      gap: 1rem;
+    }
+    .quiz-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.4rem 1.5rem;
+      cursor: pointer;
+      transition: border-color var(--transition), background var(--transition), transform var(--transition);
+    }
+    .quiz-card:hover { border-color: var(--primary); background: var(--surface-2); transform: translateY(-2px); }
+    .quiz-card-topic { font-weight: 600; font-size: 0.975rem; line-height: 1.4; margin-bottom: 0.5rem; }
+    .quiz-card-file  { font-size: 0.75rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .quiz-card-count { font-size: 0.75rem; color: var(--primary); margin-top: 0.5rem; font-weight: 500; }
+
+    /* ── QUIZ PAGE ── */
+    #quiz-header { margin-bottom: 2rem; }
+    #quiz-header h2 { font-size: 1.3rem; font-weight: 700; }
+    #quiz-header .source-file { font-size: 0.78rem; color: var(--muted); margin-top: 0.25rem; }
+
+    .progress-wrap {
+      height: 3px; background: var(--border); border-radius: 99px;
+      margin-bottom: 2rem; overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%; width: 0; background: var(--primary);
+      border-radius: 99px; transition: width 0.4s ease;
+    }
+
+    /* question nav dots */
+    .q-dots { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 2rem; }
+    .q-dot {
+      width: 8px; height: 8px; border-radius: 99px;
+      background: var(--border); transition: background var(--transition), width var(--transition);
+    }
+    .q-dot.active { background: var(--primary); width: 20px; }
+    .q-dot.correct { background: var(--success); }
+    .q-dot.wrong   { background: var(--error); }
+
+    /* question card */
+    .q-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      animation: fadeUp 0.2s ease;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .q-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;
+    }
+    .q-counter { font-size: 0.78rem; color: var(--muted); font-weight: 500; }
+    .q-badges  { display: flex; gap: 0.4rem; align-items: center; }
+
+    .diff-badge {
+      font-size: 0.68rem; font-weight: 700; padding: 0.2rem 0.6rem;
+      border-radius: 99px; letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .diff-Beginner     { background: #162616; color: #6daa45; border: 1px solid #1e3a1e; }
+    .diff-Easy         { background: #142030; color: #4f98a3; border: 1px solid #1a2e40; }
+    .diff-Intermediate { background: #2a2010; color: #e8af34; border: 1px solid #3a2e14; }
+    .diff-Hard         { background: #2a1016; color: #dd6974; border: 1px solid #3a1820; }
+    .diff-Expert       { background: #1e1030; color: #a86fdf; border: 1px solid #2c1a42; }
+
+    .src-badge {
+      font-size: 0.65rem; color: var(--muted);
+      border: 1px solid var(--border); border-radius: 99px; padding: 0.15rem 0.5rem;
+    }
+
+    .q-text {
+      font-size: 1.05rem; font-weight: 500; line-height: 1.6;
+      margin-bottom: 1.5rem; color: var(--text);
+    }
+
+    .options { display: flex; flex-direction: column; gap: 0.6rem; }
+    .option {
+      display: flex; align-items: flex-start; gap: 0.85rem;
+      padding: 0.85rem 1rem; border: 1px solid var(--border);
+      border-radius: 9px; cursor: pointer;
+      transition: border-color var(--transition), background var(--transition);
+      user-select: none;
+    }
+    .option:hover:not(.locked) { border-color: var(--primary); background: #17282c; }
+    .opt-label {
+      font-size: 0.8rem; font-weight: 700; color: var(--muted);
+      min-width: 1.1rem; padding-top: 0.1rem; flex-shrink: 0;
+    }
+    .opt-text { font-size: 0.95rem; line-height: 1.5; }
+
+    .option.correct { border-color: var(--success); background: #152612; }
+    .option.correct .opt-label { color: var(--success); }
+    .option.wrong   { border-color: var(--error);   background: #231220; }
+    .option.wrong   .opt-label { color: var(--error); }
+    .option.reveal  { border-color: var(--success); background: #152612; opacity: 0.7; }
+    .option.reveal  .opt-label { color: var(--success); }
+
+    /* explanation */
+    .explanation {
+      margin-top: 1.25rem;
+      padding: 1rem 1.1rem;
+      background: var(--surface-2);
+      border-left: 3px solid var(--primary);
+      border-radius: 0 8px 8px 0;
+      font-size: 0.875rem; line-height: 1.6; color: var(--muted);
+      animation: fadeUp 0.2s ease;
+    }
+    .explanation strong { color: var(--text); }
+
+    /* next button */
+    .next-btn {
+      margin-top: 1.5rem; width: 100%;
+      padding: 0.8rem; background: var(--primary);
+      color: #fff; border: none; border-radius: 9px;
+      font-family: var(--font); font-size: 0.95rem; font-weight: 600;
+      cursor: pointer; transition: background var(--transition);
+      animation: fadeUp 0.2s ease;
+    }
+    .next-btn:hover { background: var(--primary-h); }
+
+    /* group divider */
+    .group-div {
+      display: flex; align-items: center; gap: 0.75rem;
+      color: var(--muted); font-size: 0.75rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin: 0 0 1.5rem;
+    }
+    .group-div::before, .group-div::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* ── SCORE PAGE ── */
+    #score-page .score-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2.5rem 2rem;
+      text-align: center; margin-top: 1rem;
+    }
+    .score-num { font-size: 4rem; font-weight: 700; color: var(--primary); line-height: 1; margin: 1rem 0 0.5rem; }
+    .score-pct { font-size: 1rem; color: var(--muted); margin-bottom: 0.5rem; }
+    .score-label { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
+    .score-actions { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+    .btn-ghost {
+      padding: 0.65rem 1.4rem; border: 1px solid var(--border);
+      background: none; color: var(--text); border-radius: 8px;
+      font-family: var(--font); font-size: 0.9rem; font-weight: 500; cursor: pointer;
+      transition: border-color var(--transition), background var(--transition);
+    }
+    .btn-ghost:hover { border-color: var(--primary); background: var(--surface-2); }
+    .btn-primary {
+      padding: 0.65rem 1.4rem; background: var(--primary);
+      color: #fff; border: none; border-radius: 8px;
+      font-family: var(--font); font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      transition: background var(--transition);
+    }
+    .btn-primary:hover { background: var(--primary-h); }
+
+    /* answer review */
+    .review-title { font-weight: 600; font-size: 0.85rem; color: var(--muted);
+                    text-transform: uppercase; letter-spacing: 0.06em; margin: 2rem 0 1rem; }
+    .review-item { display: flex; align-items: flex-start; gap: 0.75rem;
+                   padding: 0.75rem 1rem; border-radius: 8px;
+                   background: var(--surface); border: 1px solid var(--border); margin-bottom: 0.5rem; }
+    .review-dot { width: 8px; height: 8px; border-radius: 99px; flex-shrink: 0; margin-top: 0.45rem; }
+    .review-dot.c { background: var(--success); }
+    .review-dot.w { background: var(--error); }
+    .review-q { font-size: 0.875rem; line-height: 1.4; flex: 1; }
+    .review-ans { font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem; }
+
+    @media (max-width: 500px) {
+      nav { padding: 0.9rem 1rem; }
+      .container { padding: 1.5rem 1rem; }
+      .q-card { padding: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo" onclick="goHome()">🧠 <span>Apollo</span> Quizzes</div>
+  <div class="nav-breadcrumb" id="breadcrumb"></div>
+</nav>
+
+<!-- ── HOME: folder list ───────────────────────────────────── -->
+<div id="home-page" class="page active">
+  <div class="container">
+    <div class="page-header">
+      <h1>Knowledge Base</h1>
+      <p>Select a folder to browse quizzes</p>
+    </div>
+    <div id="folder-grid" class="folder-grid">
+      <div class="loading-state"><div class="spinner"></div><p>Loading folders…</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOPIC LIST: quizzes in folder ──────────────────────── -->
+<div id="topics-page" class="page">
+  <div class="container">
+    <button class="back-btn" onclick="goHome()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M5 12l7 7M5 12l7-7"/></svg>
+      All folders
+    </button>
+    <div class="page-header">
+      <h1 id="folder-title"></h1>
+      <p id="folder-sub"></p>
+    </div>
+    <div id="quiz-grid" class="quiz-grid"></div>
+  </div>
+</div>
+
+<!-- ── QUIZ: one question at a time ───────────────────────── -->
+<div id="quiz-page" class="page">
+  <div class="container" style="max-width:720px">
+    <button class="back-btn" id="quiz-back-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M5 12l7 7M5 12l7-7"/></svg>
+      Back to topics
+    </button>
+    <div id="quiz-header">
+      <h2 id="quiz-title"></h2>
+      <div class="source-file" id="quiz-source"></div>
+    </div>
+    <div class="progress-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+    <div class="q-dots" id="q-dots"></div>
+    <div id="q-group-label"></div>
+    <div id="q-area"></div>
+  </div>
+</div>
+
+<!-- ── SCORE PAGE ─────────────────────────────────────────── -->
+<div id="score-page" class="page">
+  <div class="container" style="max-width:720px">
+    <div class="score-wrap">
+      <div style="font-size:2.5rem">🎉</div>
+      <div class="score-num" id="score-num"></div>
+      <div class="score-pct" id="score-pct"></div>
+      <div class="score-label" id="score-label-txt"></div>
+      <div class="score-actions">
+        <button class="btn-ghost" id="back-to-topics-btn">Back to topics</button>
+        <button class="btn-primary" onclick="restartQuiz()">Try again</button>
+      </div>
+    </div>
+    <div class="review-title">Your answers</div>
+    <div id="review-list"></div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────
+// CONFIGURATION
+// Set BASE_PATH to the folder (relative to this HTML file) that
+// contains your numbered subfolders, e.g. "quizzes" if your
+// structure is:  quizzes/02-idea/*.json
+//                quizzes/03-resources/*.json
+// The ACTION workflow sets this automatically.
+// ─────────────────────────────────────────────────────────────────
+const BASE_PATH = "../02-idea";   // folder containing 07-Apollo subfolders
+
+// QUIZ_MANIFEST is injected by GitHub Actions – do not edit manually
+const QUIZ_MANIFEST = [
+  // { folder: "02-idea", label: "Idea Vault", files: ["02-idea/goodharts-law.json", ...] }
+  // populated automatically
+];
+// ─────────────────────────────────────────────────────────────────
+
+// ── state ─────────────────────────────────────────────────────────
+let currentFolder   = null;
+let currentQuizData = null;
+let currentQIndex   = 0;
+let answers         = [];   // {chosen, correct}[]
+
+// ── routing helpers ───────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0 });
+}
+
+function setBreadcrumb(parts) {
+  const bc = document.getElementById('breadcrumb');
+  bc.innerHTML = parts.map((p, i) =>
+    i < parts.length - 1
+      ? `<span class="crumb" onclick="${p.onclick}">${p.label}</span><span class="sep">/</span>`
+      : `<span class="crumb active">${p.label}</span>`
+  ).join('');
+}
+
+// ── HOME ──────────────────────────────────────────────────────────
+function goHome() {
+  setBreadcrumb([{ label: 'Home' }]);
+  showPage('home-page');
+}
+
+function renderFolders() {
+  const grid = document.getElementById('folder-grid');
+
+  if (!QUIZ_MANIFEST.length) {
+    grid.innerHTML = `<div class="empty-state">
+      <p style="font-size:2rem;margin-bottom:0.75rem">📭</p>
+      <p>No quizzes found. Run the generator and push to main.</p>
+    </div>`;
+    return;
+  }
+
+  const folderEmojis = ['📂','📁','🗂️','📚','🧩','💡','🔬','⚡','🌐','🎯'];
+
+  grid.innerHTML = QUIZ_MANIFEST.map((f, i) => `
+    <div class="folder-card" onclick="openFolder('${f.folder}')">
+      <div class="folder-pill">${f.files.length} quiz${f.files.length !== 1 ? 'zes' : ''}</div>
+      <div class="folder-icon">${folderEmojis[i % folderEmojis.length]}</div>
+      <div class="folder-name">${f.label}</div>
+      <div class="folder-meta">${f.files.length} topic${f.files.length !== 1 ? 's' : ''} · 10 questions each</div>
+    </div>
+  `).join('');
+}
+
+// ── TOPIC LIST ────────────────────────────────────────────────────
+async function openFolder(folderKey) {
+  currentFolder = QUIZ_MANIFEST.find(f => f.folder === folderKey);
+  if (!currentFolder) return;
+
+  document.getElementById('folder-title').textContent = currentFolder.label;
+  document.getElementById('folder-sub').textContent   = `${currentFolder.files.length} quizzes available`;
+  document.getElementById('quiz-grid').innerHTML =
+    `<div class="loading-state"><div class="spinner"></div><p>Loading topics…</p></div>`;
+  showPage('topics-page');
+  setBreadcrumb([
+    { label: 'Home', onclick: 'goHome()' },
+    { label: currentFolder.label }
+  ]);
+
+  // Fetch all JSON files in this folder in parallel
+  const results = await Promise.all(
+    currentFolder.files.map(f =>
+      fetch(`${BASE_PATH}/${f}`).then(r => r.json()).catch(() => null)
+    )
+  );
+
+  const grid = document.getElementById('quiz-grid');
+  const valid = results.filter(Boolean);
+  if (!valid.length) {
+    grid.innerHTML = `<div class="empty-state"><p>Could not load any quizzes.</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = valid.map((data, i) => `
+    <div class="quiz-card" onclick="startQuiz(${i})">
+      <div class="quiz-card-topic">${data.topic}</div>
+      <div class="quiz-card-file">📄 ${data.file}</div>
+      <div class="quiz-card-count">▶ ${data.questions.length} questions</div>
+    </div>
+  `).join('');
+
+  // store fetched data on the elements
+  grid.querySelectorAll('.quiz-card').forEach((el, i) => {
+    el._quizData = valid[i];
+  });
+}
+
+// ── QUIZ ──────────────────────────────────────────────────────────
+function startQuiz(cardIndex) {
+  const cards = document.querySelectorAll('#quiz-grid .quiz-card');
+  currentQuizData = cards[cardIndex]._quizData;
+  currentQIndex   = 0;
+  answers         = Array(currentQuizData.questions.length).fill(null);
+
+  document.getElementById('quiz-back-btn').onclick = () => openFolder(currentFolder.folder);
+
+  document.getElementById('quiz-title').textContent  = currentQuizData.topic;
+  document.getElementById('quiz-source').textContent = `📄 ${currentQuizData.file}`;
+
+  setBreadcrumb([
+    { label: 'Home', onclick: 'goHome()' },
+    { label: currentFolder.label, onclick: `openFolder('${currentFolder.folder}')` },
+    { label: currentQuizData.topic }
+  ]);
+
+  buildDots();
+  renderQuestion();
+  showPage('quiz-page');
+}
+
+function buildDots() {
+  const wrap = document.getElementById('q-dots');
+  wrap.innerHTML = currentQuizData.questions.map((_, i) =>
+    `<div class="q-dot${i === 0 ? ' active' : ''}" id="dot-${i}"></div>`
+  ).join('');
+}
+
+function updateDot(index, status) {
+  const dot = document.getElementById(`dot-${index}`);
+  dot.classList.remove('active', 'correct', 'wrong');
+  dot.classList.add(status);
+}
+
+function renderQuestion() {
+  const q     = currentQuizData.questions[currentQIndex];
+  const total = currentQuizData.questions.length;
+
+  // progress bar
+  document.getElementById('progress-bar').style.width =
+    `${(currentQIndex / total) * 100}%`;
+
+  // active dot
+  document.querySelectorAll('.q-dot').forEach((d, i) => {
+    d.classList.toggle('active', i === currentQIndex &&
+      !d.classList.contains('correct') && !d.classList.contains('wrong'));
+  });
+
+  // group divider
+  const glabel = document.getElementById('q-group-label');
+  if (currentQIndex === 0) {
+    glabel.innerHTML = `<div class="group-div">📄 Document-Based Questions</div>`;
+  } else if (currentQIndex === 5) {
+    glabel.innerHTML = `<div class="group-div">🧠 General Knowledge</div>`;
+  } else {
+    glabel.innerHTML = '';
+  }
+
+  // infer difficulty from question text prefix OR index
+  const diffLabels = ["Beginner","Easy","Intermediate","Hard","Expert"];
+  let diff = diffLabels[currentQIndex % 5];
+  const prefixMatch = q.question.match(/^(Beginner|Easy|Intermediate|Hard|Expert)\s*\|/i);
+  const cleanQuestion = prefixMatch
+    ? q.question.replace(/^(Beginner|Easy|Intermediate|Hard|Expert)\s*\|\s*/i, '')
+    : q.question;
+  if (prefixMatch) diff = prefixMatch[1];
+
+  const srcLabel = q.source === 'document' ? '📄 Document' : '🧠 General';
+
+  const area = document.getElementById('q-area');
+  area.innerHTML = `
+    <div class="q-card" id="q-card">
+      <div class="q-card-header">
+        <span class="q-counter">Question ${currentQIndex + 1} of ${total}</span>
+        <div class="q-badges">
+          <span class="diff-badge diff-${diff}">${diff}</span>
+          <span class="src-badge">${srcLabel}</span>
+        </div>
+      </div>
+      <div class="q-text">${cleanQuestion}</div>
+      <div class="options" id="options-wrap">
+        ${q.options.map(o => `
+          <div class="option" data-label="${o.label}"
+               onclick="selectOption(this, '${o.label}', '${q.correct_answer}')">
+            <span class="opt-label">${o.label}</span>
+            <span class="opt-text">${o.text}</span>
+          </div>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function selectOption(el, chosen, correct) {
+  const card = document.getElementById('q-card');
+  if (card.dataset.locked === '1') return;
+  card.dataset.locked = '1';
+
+  const opts = card.querySelectorAll('.option');
+  opts.forEach(o => {
+    o.classList.add('locked');
+    if (o.dataset.label === correct) {
+      o.classList.add(chosen === correct ? 'correct' : 'reveal');
+    }
+  });
+  if (chosen !== correct) el.classList.add('wrong');
+
+  answers[currentQIndex] = { chosen, correct };
+  updateDot(currentQIndex, chosen === correct ? 'correct' : 'wrong');
+
+  // show explanation
+  const q = currentQuizData.questions[currentQIndex];
+  const exp = document.createElement('div');
+  exp.className = 'explanation';
+  exp.innerHTML = `<strong>💡 Explanation:</strong> ${q.explanation}`;
+  card.appendChild(exp);
+
+  // next / finish button
+  const isLast = currentQIndex === currentQuizData.questions.length - 1;
+  const btn = document.createElement('button');
+  btn.className = 'next-btn';
+  btn.textContent = isLast ? 'See results →' : 'Next question →';
+  btn.onclick = isLast ? showScore : nextQuestion;
+  card.appendChild(btn);
+}
+
+function nextQuestion() {
+  currentQIndex++;
+  renderQuestion();
+}
+
+// ── SCORE ─────────────────────────────────────────────────────────
+function showScore() {
+  const total   = answers.length;
+  const correct = answers.filter(a => a && a.chosen === a.correct).length;
+  const pct     = Math.round((correct / total) * 100);
+  const emoji   = pct >= 80 ? '🌟 Excellent!' : pct >= 60 ? '👍 Good effort!' : '📚 Keep studying!';
+
+  document.getElementById('score-num').textContent      = `${correct} / ${total}`;
+  document.getElementById('score-pct').textContent      = `${pct}% correct`;
+  document.getElementById('score-label-txt').textContent = emoji;
+  document.getElementById('progress-bar').style.width   = '100%';
+
+  document.getElementById('back-to-topics-btn').onclick =
+    () => openFolder(currentFolder.folder);
+
+  // review list
+  const list = document.getElementById('review-list');
+  const qs   = currentQuizData.questions;
+  list.innerHTML = qs.map((q, i) => {
+    const a      = answers[i];
+    const isOk   = a && a.chosen === a.correct;
+    const diffLabels = ["Beginner","Easy","Intermediate","Hard","Expert"];
+    const cleanQ = q.question.replace(/^(Beginner|Easy|Intermediate|Hard|Expert)\s*\|\s*/i, '');
+    const chosen = q.options.find(o => o.label === a?.chosen);
+    const corr   = q.options.find(o => o.label === a?.correct);
+    return `<div class="review-item">
+      <div class="review-dot ${isOk ? 'c' : 'w'}"></div>
+      <div>
+        <div class="review-q">${cleanQ}</div>
+        <div class="review-ans">
+          ${isOk
+            ? `✅ ${corr?.text}`
+            : `❌ You: ${chosen?.text || '—'} &nbsp;·&nbsp; ✅ ${corr?.text}`}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  setBreadcrumb([
+    { label: 'Home', onclick: 'goHome()' },
+    { label: currentFolder.label, onclick: `openFolder('${currentFolder.folder}')` },
+    { label: 'Results' }
+  ]);
+  showPage('score-page');
+}
+
+function restartQuiz() {
+  currentQIndex = 0;
+  answers       = Array(currentQuizData.questions.length).fill(null);
+  buildDots();
+  renderQuestion();
+  document.getElementById('progress-bar').style.width = '0%';
+  showPage('quiz-page');
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+setBreadcrumb([{ label: 'Home' }]);
+renderFolders();
+</script>
+</body>
+</html>
