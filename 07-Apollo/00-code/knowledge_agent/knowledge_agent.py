@@ -133,11 +133,15 @@ def mark_as_processed(tracker_path: Path, filename: str) -> None:
 
 # ── Core processing ───────────────────────────────────────────────────────────
 def process_folder(folder_path: str, output_dir: str) -> int:
-    """
-    Returns the number of files successfully processed (used as exit code signal).
-    """
     folder = Path(folder_path).resolve()
     output = Path(output_dir).resolve()
+
+    # Mirror JSONs into docs/ for the web quiz player
+    # Script lives at: 07-Apollo/00-code/knowledge_agent/knowledge_agent.py
+    # docs lives at:   07-Apollo/docs/
+    SCRIPT_DIR = Path(__file__).resolve().parent
+    docs_output = SCRIPT_DIR / "docs" / output.name   # e.g. docs/02-idea/
+    docs_output.mkdir(parents=True, exist_ok=True)
 
     if not folder.exists():
         print(f"❌ Input folder not found: {folder}", flush=True)
@@ -149,8 +153,9 @@ def process_folder(folder_path: str, output_dir: str) -> int:
     processed = get_processed_files(tracker)
     md_files = list(folder.rglob("*.md"))
 
-    print(f"📂 Input:  {folder}", flush=True)
-    print(f"📂 Output: {output}", flush=True)
+    print(f"📂 Input:   {folder}", flush=True)
+    print(f"📂 Output:  {output}", flush=True)
+    print(f"📂 Docs:    {docs_output}", flush=True)
     print(f"📄 Found {len(md_files)} markdown files. {len(processed)} already processed.\n", flush=True)
 
     success_count = 0
@@ -175,16 +180,21 @@ def process_folder(folder_path: str, output_dir: str) -> int:
 
             stem = md_file.stem
 
-            # Save Markdown
+            # Save Markdown (output dir only — not needed on the web)
             md_out = output / f"{stem}.md"
             md_out.write_text(quiz_to_markdown(result), encoding="utf-8")
 
-            # Save JSON (for the web quiz player)
+            # Save JSON to output dir
             json_out = output / f"{stem}.json"
-            json_out.write_text(json.dumps(quiz_to_dict(result), indent=2, ensure_ascii=False), encoding="utf-8")
+            json_data = json.dumps(quiz_to_dict(result), indent=2, ensure_ascii=False)
+            json_out.write_text(json_data, encoding="utf-8")
+
+            # Mirror JSON to docs/ for GitHub Pages
+            docs_json_out = docs_output / f"{stem}.json"
+            docs_json_out.write_text(json_data, encoding="utf-8")
 
             mark_as_processed(tracker, filename)
-            print(f"  ✅ Saved: {md_out.name}  +  {json_out.name}", flush=True)
+            print(f"  ✅ Saved: {md_out.name}  +  {json_out.name}  +  docs/{output.name}/{docs_json_out.name}", flush=True)
             success_count += 1
 
         except Exception as e:

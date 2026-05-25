@@ -12,9 +12,8 @@ from pathlib import Path
 # ── Config ────────────────────────────────────────────────────────────────────
 SCRIPT_DIR   = Path(__file__).resolve().parent          # 00-code/knowledge_agent/
 APOLLO_DIR   = SCRIPT_DIR.parent.parent                 # 07-Apollo/
-QUIZZES_ROOT = APOLLO_DIR                               # scan subfolders of 07-Apollo/
-DOCS_DIR     = "docs"
-MANIFEST_OUT = DOCS_DIR / "manifest.json"
+QUIZZES_ROOT = APOLLO_DIR                               # scan subfolders of 07-Apollo/                             # relative to repo root
+MANIFEST_OUT = SCRIPT_DIR / "docs/manifest.json"
 
 # Folders to skip when scanning for quiz JSON files
 SKIP_FOLDERS = {"00-code", "docs", ".git"}
