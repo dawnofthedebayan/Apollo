@@ -13,7 +13,7 @@ from pathlib import Path
 SCRIPT_DIR   = Path(__file__).resolve().parent          # 00-code/knowledge_agent/
 APOLLO_DIR   = SCRIPT_DIR.parent.parent                 # 07-Apollo/
 QUIZZES_ROOT = APOLLO_DIR                               # scan subfolders of 07-Apollo/
-DOCS_DIR     = APOLLO_DIR / "docs"
+DOCS_DIR     = "docs"
 MANIFEST_OUT = DOCS_DIR / "manifest.json"
 
 # Folders to skip when scanning for quiz JSON files
