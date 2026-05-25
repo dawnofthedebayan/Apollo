@@ -202,6 +202,6 @@ if __name__ == "__main__":
     )
     output_folder = os.environ.get(
         "QUIZ_OUTPUT_DIR",
-        "/Users/debayanbhattacharya/Library/Mobile Documents/iCloud~md~obsidian/Documents/Debayan_Personal/07-Apollo/02-idea",
+        "/Users/debayanbhattacharya/Library/Mobile Documents/iCloud~md~obsidian/Documents/Debayan_Personal/07-Apollo/05-idea",
     )
     process_folder(input_folder, output_folder)

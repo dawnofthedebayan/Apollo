@@ -28,34 +28,15 @@ jobs:
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           QUIZ_INPUT_DIR:  ${{ github.workspace }}/05-idea
-          QUIZ_OUTPUT_DIR: ${{ github.workspace }}/07-Apollo/02-idea
+          QUIZ_OUTPUT_DIR: ${{ github.workspace }}/07-Apollo/05-idea
         run: python 07-Apollo/00-code/knowledge_agent/knowledge_agent.py
 
-      - name: Inject QUIZ_MANIFEST into index.html
-        run: |
-          python3 - <<'EOF'
-          import re, json, pathlib
-
-          quizzes_dir = pathlib.Path("07-Apollo/02-idea")
-          files = sorted(f.name for f in quizzes_dir.glob("*.json"))
-
-          manifest = [{"folder": "02-idea", "label": "Ideas", "files": files}]
-          manifest_js = json.dumps(manifest, indent=2)
-
-          html_path = pathlib.Path("docs/index.html")
-          html = html_path.read_text()
-          updated = re.sub(
-              r'(const QUIZ_MANIFEST = )\[.*?\];',
-              f'const QUIZ_MANIFEST = {manifest_js};',
-              html, flags=re.DOTALL
-          )
-          html_path.write_text(updated)
-          print(f"Registered {len(files)} quiz file(s).")
-          EOF
+      - name: Generate quiz manifest
+        run: python 07-Apollo/00-code/util/generate_manifest.py
 
       - name: Commit generated quizzes and updated manifest
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add 07-Apollo/02-idea/ docs/
+          git add 07-Apollo/05-idea/ docs/
           git diff --staged --quiet || (git commit -m "chore: regenerate quizzes [skip ci]" && git push)
