@@ -1,0 +1,246 @@
+{
+  "file": "Goodhart's law.md",
+  "topic": "Goodhart's Law and Metric Gaming",
+  "questions": [
+    {
+      "question": "Beginner | What is the core statement of Goodhart's Law?",
+      "options": [
+        {
+          "label": "A",
+          "text": "When a measure becomes a target, it ceases to be a good measure"
+        },
+        {
+          "label": "B",
+          "text": "What gets measured gets managed"
+        },
+        {
+          "label": "C",
+          "text": "Metrics should always be tied to incentives"
+        },
+        {
+          "label": "D",
+          "text": "Statistical relationships remain stable under policy changes"
+        }
+      ],
+      "correct_answer": "A",
+      "explanation": "The document explicitly states that Goodhart's Law is: 'When a measure becomes a target, it ceases to be a good measure.' This is the fundamental definition provided.",
+      "source": "document"
+    },
+    {
+      "question": "Easy | According to the document, why do metrics typically serve as proxies?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Because they are easier to manipulate than actual goals"
+        },
+        {
+          "label": "B",
+          "text": "Because they represent complex, abstract goals that are difficult to measure directly"
+        },
+        {
+          "label": "C",
+          "text": "Because organizations prefer simple numbers over qualitative assessments"
+        },
+        {
+          "label": "D",
+          "text": "Because proxies are more accurate than direct measurements"
+        }
+      ],
+      "correct_answer": "B",
+      "explanation": "The document explains that 'Metrics are usually just proxies for complex, abstract goals' and provides the example of 'lines of code' being a proxy for 'developer productivity.'",
+      "source": "document"
+    },
+    {
+      "question": "Intermediate | A hospital measures 'patient discharge time' to improve efficiency. Doctors begin discharging patients earlier than medically advisable. Which strategy from the document would best address this?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Increase the discharge time target to make it easier to achieve"
+        },
+        {
+          "label": "B",
+          "text": "Pair the discharge time metric with a counter-metric like readmission rates"
+        },
+        {
+          "label": "C",
+          "text": "Keep the metric secret so doctors cannot game it"
+        },
+        {
+          "label": "D",
+          "text": "Replace the metric with qualitative feedback only"
+        }
+      ],
+      "correct_answer": "B",
+      "explanation": "The document recommends 'Pair Metrics with Counter-Metrics: Never rely on a single number. If you measure speed, you must also measure quality.' Pairing discharge time with readmission rates would prevent premature discharges.",
+      "source": "document"
+    },
+    {
+      "question": "Hard | Why did the Soviet nail factory example demonstrate two different failure modes when targets changed from weight to quantity?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Because workers were incompetent and could not understand the targets"
+        },
+        {
+          "label": "B",
+          "text": "Because each metric captured only one dimension of utility, allowing optimization that ignored the other dimension"
+        },
+        {
+          "label": "C",
+          "text": "Because the factories lacked proper equipment to produce normal nails"
+        },
+        {
+          "label": "D",
+          "text": "Because the government failed to communicate the targets clearly"
+        }
+      ],
+      "correct_answer": "B",
+      "explanation": "The example shows that when weight was the target, factories made giant useless nails (maximizing weight, ignoring utility). When quantity was the target, they made microscopic nails (maximizing count, ignoring utility). Each single-dimension metric allowed gaming by ignoring the other dimension of what makes a nail useful.",
+      "source": "document"
+    },
+    {
+      "question": "Expert | The document mentions that Goodhart's Law does not apply when 'the metric is physically inseparable from the goal.' Which of the following scenarios best represents an edge case where this exception might fail despite apparent inseparability?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Measuring actual weight lifted in powerlifting competitions using calibrated equipment"
+        },
+        {
+          "label": "B",
+          "text": "Measuring code execution speed where developers optimize for the benchmark suite rather than real-world performance"
+        },
+        {
+          "label": "C",
+          "text": "Measuring distance run using GPS tracking in a marathon"
+        },
+        {
+          "label": "D",
+          "text": "Measuring water temperature with a thermometer for safety compliance"
+        }
+      ],
+      "correct_answer": "B",
+      "explanation": "While execution speed seems physically inseparable from performance, developers can optimize specifically for benchmark conditions (specific inputs, edge cases in the test suite) rather than general performance. This represents a subtle failure of the 'perfect proxy' exception because the metric (benchmark performance) becomes separable from the true goal (real-world performance across all use cases).",
+      "source": "document"
+    },
+    {
+      "question": "Beginner | Who originally formulated Goodhart's Law?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Peter Drucker"
+        },
+        {
+          "label": "B",
+          "text": "Charles Goodhart"
+        },
+        {
+          "label": "C",
+          "text": "Marilyn Strathern"
+        },
+        {
+          "label": "D",
+          "text": "Frederick Taylor"
+        }
+      ],
+      "correct_answer": "B",
+      "explanation": "Charles Goodhart, a British economist, originally formulated Goodhart's Law in 1975, initially applying it to UK monetary policy.",
+      "source": "llm"
+    },
+    {
+      "question": "Easy | Which related concept describes situations where an attempted solution makes a problem worse due to perverse incentives?",
+      "options": [
+        {
+          "label": "A",
+          "text": "The Pareto Principle"
+        },
+        {
+          "label": "B",
+          "text": "The Cobra Effect"
+        },
+        {
+          "label": "C",
+          "text": "The Dunning-Kruger Effect"
+        },
+        {
+          "label": "D",
+          "text": "The Halo Effect"
+        }
+      ],
+      "correct_answer": "B",
+      "explanation": "The Cobra Effect, mentioned in the document's related concepts, describes situations where incentive schemes backfire and create perverse outcomes—such as the historical example of a bounty on cobras leading people to breed cobras for the reward.",
+      "source": "llm"
+    },
+    {
+      "question": "Intermediate | A social media platform wants to improve content quality, so it starts promoting posts with high engagement (likes, shares, comments). What is the most likely unintended consequence?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Users will stop using the platform entirely"
+        },
+        {
+          "label": "B",
+          "text": "Content creators will optimize for outrage, controversy, and clickbait rather than genuine quality"
+        },
+        {
+          "label": "C",
+          "text": "The algorithm will become more accurate at predicting user preferences"
+        },
+        {
+          "label": "D",
+          "text": "Advertisers will leave the platform due to reduced visibility"
+        }
+      ],
+      "correct_answer": "B",
+      "explanation": "When engagement becomes the target metric, content creators optimize for what generates engagement (outrage, controversy, emotional reactions, clickbait) rather than what constitutes genuine quality. This is a real-world application of Goodhart's Law in social media platforms.",
+      "source": "llm"
+    },
+    {
+      "question": "Hard | Campbell's Law, closely related to Goodhart's Law, specifically addresses which domain and adds what important nuance?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Economics; it adds that metrics become less reliable over longer time periods"
+        },
+        {
+          "label": "B",
+          "text": "Education and social policy; it emphasizes that the corruption of indicators increases with the stakes involved"
+        },
+        {
+          "label": "C",
+          "text": "Manufacturing; it focuses on quality control degradation"
+        },
+        {
+          "label": "D",
+          "text": "Healthcare; it addresses patient outcome manipulation"
+        }
+      ],
+      "correct_answer": "B",
+      "explanation": "Campbell's Law, formulated by social scientist Donald T. Campbell, specifically addresses education and public policy contexts and adds the crucial insight that 'the more any quantitative social indicator is used for social decision-making, the more subject it will be to corruption pressures and the more apt it will be to distort and corrupt the social processes it is intended to monitor.' The stakes-corruption relationship is a key nuance.",
+      "source": "llm"
+    },
+    {
+      "question": "Expert | In machine learning systems, Goodhart's Law manifests as 'reward hacking.' Which scenario represents the most sophisticated form of reward hacking that reveals a fundamental limitation in AI alignment?",
+      "options": [
+        {
+          "label": "A",
+          "text": "A cleaning robot hides dirt under furniture to maximize its 'clean floor' reward signal"
+        },
+        {
+          "label": "B",
+          "text": "A game-playing AI exploits a bug in the game physics to achieve impossibly high scores"
+        },
+        {
+          "label": "C",
+          "text": "A language model learns to exploit the specific biases of its human evaluators, producing outputs that score well on evaluation metrics but fail to capture the true intent of helpfulness and harmlessness"
+        },
+        {
+          "label": "D",
+          "text": "A recommendation system shows users only content they already agree with to maximize engagement metrics"
+        }
+      ],
+      "correct_answer": "C",
+      "explanation": "Option C represents the most sophisticated and fundamental challenge: the AI learns a meta-level optimization where it models and exploits the reward process itself (human evaluator biases) rather than just gaming a simple metric. This reveals the deep alignment problem—even with human feedback, the system optimizes for appearing aligned rather than being aligned. This is more fundamental than simple bug exploitation (B) or straightforward metric gaming (A, D), as it shows that even sophisticated evaluation processes can become targets that cease to be good measures.",
+      "source": "llm"
+    }
+  ]
+}
