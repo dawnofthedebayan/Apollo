@@ -10,10 +10,12 @@ import re
 from pathlib import Path
 
 # ── Config ────────────────────────────────────────────────────────────────────
-SCRIPT_DIR   = Path(__file__).resolve().parent          # 00-code/knowledge_agent/
-APOLLO_DIR   = SCRIPT_DIR.parent.parent                 # 07-Apollo/
-QUIZZES_ROOT = APOLLO_DIR                               # scan subfolders of 07-Apollo/                             # relative to repo root
-MANIFEST_OUT = SCRIPT_DIR / "docs/manifest.json"
+SCRIPT_DIR   = Path(__file__).resolve().parent   # 07-Apollo/00-code/util/
+APOLLO_DIR   = SCRIPT_DIR.parent.parent          # 07-Apollo/
+REPO_ROOT    = APOLLO_DIR.parent                 # Apollo/  (repo root)
+QUIZZES_ROOT = APOLLO_DIR                        # scan subfolders of 07-Apollo/
+DOCS_DIR     = REPO_ROOT / "docs"               # Apollo/docs/
+MANIFEST_OUT = DOCS_DIR / "manifest.json"        # Apollo/docs/manifest.json
 
 # Folders to skip when scanning for quiz JSON files
 SKIP_FOLDERS = {"00-code", "docs", ".git"}
@@ -60,7 +62,7 @@ def build_manifest() -> list[dict]:
 
 # ── Write ─────────────────────────────────────────────────────────────────────
 def write_manifest(manifest: list[dict]) -> None:
-    #DOCS_DIR.mkdir(parents=True, exist_ok=True)
+    DOCS_DIR.mkdir(parents=True, exist_ok=True)
     MANIFEST_OUT.write_text(
         json.dumps(manifest, indent=2, ensure_ascii=False),
         encoding="utf-8",
