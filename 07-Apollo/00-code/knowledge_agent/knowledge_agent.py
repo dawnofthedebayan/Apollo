@@ -33,7 +33,7 @@ class QuizOutput(BaseModel):
 
 # ── LLM setup ────────────────────────────────────────────────────────────────
 llm = ChatOpenRouter(
-    model="anthropic/claude-sonnet-4-5",
+    model="deepseek/deepseek-v4-flash",
     temperature=0.3,
     api_key=os.environ["OPENROUTER_API_KEY"],  # hard fail if missing — no silent None
 )
@@ -196,7 +196,6 @@ def process_folder(folder_path: str, output_dir: str) -> int:
 
 # ── Entrypoint ────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    # Paths via env vars (GitHub Actions) with local fallbacks
     input_folder = os.environ.get(
         "QUIZ_INPUT_DIR",
         "/Users/debayanbhattacharya/Library/Mobile Documents/iCloud~md~obsidian/Documents/Debayan_Personal/05-idea",
@@ -205,6 +204,4 @@ if __name__ == "__main__":
         "QUIZ_OUTPUT_DIR",
         "/Users/debayanbhattacharya/Library/Mobile Documents/iCloud~md~obsidian/Documents/Debayan_Personal/07-Apollo/02-idea",
     )
-
     process_folder(input_folder, output_folder)
-    
