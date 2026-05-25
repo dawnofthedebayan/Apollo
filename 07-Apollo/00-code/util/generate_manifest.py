@@ -60,7 +60,7 @@ def build_manifest() -> list[dict]:
 
 # ── Write ─────────────────────────────────────────────────────────────────────
 def write_manifest(manifest: list[dict]) -> None:
-    DOCS_DIR.mkdir(parents=True, exist_ok=True)
+    #DOCS_DIR.mkdir(parents=True, exist_ok=True)
     MANIFEST_OUT.write_text(
         json.dumps(manifest, indent=2, ensure_ascii=False),
         encoding="utf-8",

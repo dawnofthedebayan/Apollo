@@ -33,7 +33,7 @@ class QuizOutput(BaseModel):
 
 # ── LLM setup ────────────────────────────────────────────────────────────────
 llm = ChatOpenRouter(
-    model="deepseek/deepseek-v4-flash",
+    model="anthropic/claude-sonnet-4.6",
     temperature=0.3,
     api_key=os.environ["OPENROUTER_API_KEY"],  # hard fail if missing — no silent None
 )
