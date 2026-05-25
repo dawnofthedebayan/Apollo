@@ -27,8 +27,8 @@ jobs:
       - name: Run quiz generator
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          QUIZ_INPUT_DIR:  ${{ github.workspace }}/Debayan_Personal/05-idea
-          QUIZ_OUTPUT_DIR: ${{ github.workspace }}/Debayan_Personal/07-Apollo/02-idea
+          QUIZ_INPUT_DIR:  ${{ github.workspace }}/05-idea
+          QUIZ_OUTPUT_DIR: ${{ github.workspace }}/07-Apollo/02-idea
         run: python 07-Apollo/00-code/knowledge_agent/knowledge_agent.py
 
       - name: Inject QUIZ_MANIFEST into index.html
