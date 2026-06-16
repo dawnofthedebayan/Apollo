@@ -272,7 +272,7 @@ def main():
 
     print("Loading MLX Model...")
     model, tokenizer = load("lmstudio-community/DeepSeek-R1-0528-Qwen3-8B-MLX-4bit")
-    llm = MLXLocalLLM(model=model, tokenizer=tokenizer, max_tokens=500)
+    llm = MLXLocalLLM(model=model, tokenizer=tokenizer, max_tokens=1200)
 
     for year, week in to_process:
         process_week(year, week, grouped[(year, week)], llm, db)
