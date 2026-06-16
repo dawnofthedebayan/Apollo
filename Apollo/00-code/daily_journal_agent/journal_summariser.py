@@ -11,6 +11,18 @@ from langchain_core.callbacks.manager import CallbackManagerForLLMRun
 from langchain_core.prompts import PromptTemplate
 
 # ==========================================
+# 0. Configuration
+# ==========================================
+VAULT_BASE = os.path.expanduser(
+    "~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Debayan_Personal"
+)
+print(VAULT_BASE)
+JOURNAL_DIR     = os.path.join(VAULT_BASE, "01-journals")
+DAILY_DIR       = os.path.join(JOURNAL_DIR, "daily")
+WEEKLY_DIR      = os.path.join(JOURNAL_DIR, "weekly")
+PROCESSED_DB_PATH = os.path.join(JOURNAL_DIR, "processed_entries.json")
+
+# ==========================================
 # 1. Custom LangChain Wrapper for MLX
 # ==========================================
 class MLXLocalLLM(LLM):
@@ -43,22 +55,19 @@ class MLXLocalLLM(LLM):
             prompt=prompt,
             max_tokens=self.max_tokens,
         ):
-            # response.text is the newly decoded chunk (one or more chars)
             token_text = response.text
             print(token_text, end="", flush=True)
 
             output_tokens.append(token_text)
             current_output = "".join(output_tokens)
 
-            # Check if any stop sequence has appeared in the accumulated output
             for seq in stop_sequences:
                 if seq in current_output:
-                    # Trim everything from the stop sequence onward
                     current_output = current_output[:current_output.index(seq)]
-                    print()  # newline after streaming ends
+                    print()
                     return current_output.strip()
 
-        print()  # newline after streaming ends
+        print()
         return "".join(output_tokens).strip()
 
     @property
@@ -68,35 +77,23 @@ class MLXLocalLLM(LLM):
 # ==========================================
 # 2. Processed Entries Database
 # ==========================================
-PROCESSED_DB_PATH = "/Users/debayanbhattacharya/Library/Mobile Documents/iCloud~md~obsidian/Documents/Debayan_Personal/01-journals/processed_entries.json"
-
 def load_processed_db() -> dict:
-    """
-    Loads the JSON database of processed weekly reports.
-    Structure: { "2025-WEEK-03": ["file1.md", "file2.md", ...], ... }
-    """
     if not os.path.exists(PROCESSED_DB_PATH):
         return {}
     with open(PROCESSED_DB_PATH, "r", encoding="utf-8") as f:
         return json.load(f)
 
 def save_processed_db(db: dict) -> None:
-    """Persists the processed entries database to disk."""
     with open(PROCESSED_DB_PATH, "w", encoding="utf-8") as f:
         json.dump(db, f, indent=2)
 
 def get_report_key(year: int, week: int) -> str:
-    """Returns the canonical key/filename stem, e.g. '2025-WEEK-03'."""
     return f"{year}-WEEK-{week:02d}"
 
 # ==========================================
 # 3. Week Parsing from Filenames
 # ==========================================
 def parse_year_week_from_file(filepath: str) -> Optional[Tuple[int, int]]:
-    """
-    Extracts (ISO year, ISO week) from the file's last-modified timestamp.
-    Returns None if the path does not exist or the stat call fails.
-    """
     try:
         mtime = os.path.getmtime(filepath)
         modified_date = date.fromtimestamp(mtime)
@@ -108,13 +105,7 @@ def parse_year_week_from_file(filepath: str) -> Optional[Tuple[int, int]]:
 # ==========================================
 # 4. Discovering All Entries, Grouped by Week
 # ==========================================
-def discover_all_entries(directory: str = "/Users/debayanbhattacharya/Library/Mobile Documents/iCloud~md~obsidian/Documents/Debayan_Personal/01-journals") -> Dict[Tuple[int, int], List[str]]:
-    """
-    Scans `directory` for all .md files (non-recursively) and groups them
-    by (year, week). Files that cannot be dated are silently skipped.
-
-    Returns: { (year, week): [sorted list of absolute paths], ... }
-    """
+def discover_all_entries(directory: str = DAILY_DIR) -> Dict[Tuple[int, int], List[str]]:
     all_md = glob.glob(os.path.join(directory, "*.md"))
     grouped: Dict[Tuple[int, int], List[str]] = {}
     print("all_md:", all_md)
@@ -129,7 +120,6 @@ def discover_all_entries(directory: str = "/Users/debayanbhattacharya/Library/Mo
     return grouped
 
 def get_current_year_week() -> Tuple[int, int]:
-    """Returns the ISO (year, week) for today."""
     iso = date.today().isocalendar()
     return iso.year, iso.week
 
@@ -141,19 +131,7 @@ def weeks_needing_processing(
     db: dict,
     current_year_week: Tuple[int, int],
 ) -> List[Tuple[int, int]]:
-    """
-    Returns a sorted list of (year, week) tuples that require a (re-)run.
-
-    A week needs processing when:
-      - It is the current ISO week AND at least one of its files is not yet
-        recorded in the database  (new entry added mid-week → overwrite report).
-      - It is a past week AND it has at least one file not recorded in the
-        database  (week was never processed, or new files were back-filled).
-
-    Weeks are returned in chronological order so older gaps are filled first.
-    """
     needs_run = []
-    current_key = get_report_key(*current_year_week)
 
     for (year, week), files in grouped.items():
         key = get_report_key(year, week)
@@ -165,7 +143,6 @@ def weeks_needing_processing(
         if has_new:
             needs_run.append((year, week))
 
-    # Chronological order: older weeks first, current week last
     needs_run.sort()
     return needs_run
 
@@ -173,7 +150,6 @@ def weeks_needing_processing(
 # 6. Content Loading
 # ==========================================
 def load_entries(file_paths: List[str]) -> str:
-    """Concatenates content from a list of .md file paths with separators."""
     combined = []
     for path in sorted(file_paths):
         with open(path, "r", encoding="utf-8") as f:
@@ -211,20 +187,14 @@ Please provide your elaborate therapeutic summary below:
 def write_weekly_report(
     report_key: str,
     content: str,
-    output_dir: str = "/Users/debayanbhattacharya/Library/Mobile Documents/iCloud~md~obsidian/Documents/Debayan_Personal/01-journals/weekly"
+    output_dir: str = WEEKLY_DIR,
 ) -> str:
-    """
-    Writes (or overwrites) the weekly summary .md file.
-    Returns the path of the written file.
-    """
     os.makedirs(output_dir, exist_ok=True)
     output_path = os.path.join(output_dir, f"{report_key}.md")
 
-    # Frontmatter: ONLY valid YAML between the --- fences.
-    # The heading and body go AFTER the closing fence.
     frontmatter = (
         "---\n"
-        f"title: \"Weekly Therapeutic Summary — {report_key}\"\n"
+        f"title: \"Weekly Therapeutic Summary - {report_key}\"\n"
         f"date: \"{datetime.now().strftime('%Y-%m-%d')}\"\n"
         "tags:\n"
         "  - type/journal\n"
@@ -234,7 +204,7 @@ def write_weekly_report(
     )
 
     heading = (
-        f"# Weekly Therapeutic Summary — {report_key}\n"
+        f"# Weekly Therapeutic Summary - {report_key}\n"
         f"*Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*\n\n"
     )
 
@@ -242,7 +212,6 @@ def write_weekly_report(
         f.write(frontmatter + heading + content.strip() + "\n")
 
     return output_path
-
 
 # ==========================================
 # 9. Per-Week Processing
@@ -254,10 +223,6 @@ def process_week(
     llm,
     db: dict,
 ) -> None:
-    """
-    Generates (or regenerates) the therapeutic summary for a single week
-    and updates the database entry for that week.
-    """
     report_key = get_report_key(year, week)
     chain = therapist_prompt | llm
 
@@ -268,40 +233,34 @@ def process_week(
     journal_text = load_entries(files)
     print(journal_text)
 
-    print("  Analysing patterns and generating summary…")
+    print("  Analysing patterns and generating summary...")
     response = chain.invoke({"journal_entries": journal_text})
 
     output_path = write_weekly_report(report_key, response)
-    print(f"  ✓ Report written → {output_path}")
+    print(f"  Report written -> {output_path}")
 
-    # Record ALL files for this week so future runs skip them (unless new
-    # files appear, in which case the diff check above will catch them).
     db[report_key] = sorted(os.path.basename(f) for f in files)
     save_processed_db(db)
-    print(f"  ✓ Database updated ({len(db[report_key])} entries recorded)")
+    print(f"  Database updated ({len(db[report_key])} entries recorded)")
 
 # ==========================================
 # 10. Main Execution
 # ==========================================
 def main():
-    journal_dir = "/Users/debayanbhattacharya/Library/Mobile Documents/iCloud~md~obsidian/Documents/Debayan_Personal/01-journals"
     current_yw = get_current_year_week()
     current_key = get_report_key(*current_yw)
 
-    print(f"Journal Therapist — running at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"Journal Therapist - running at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"Current ISO period : {current_key}\n")
 
-    # Load database of already-processed entries
     db = load_processed_db()
 
-    # Discover every dateable .md file, grouped by (year, week)
-    grouped = discover_all_entries(journal_dir + "/daily")
+    grouped = discover_all_entries(DAILY_DIR)
     print("grouped:", grouped)
     if not grouped:
-        print("No journal entries found in 01-journal/. Nothing to do.")
+        print("No journal entries found. Nothing to do.")
         return
 
-    # Work out which weeks actually need a (re-)run
     to_process = weeks_needing_processing(grouped, db, current_yw)
     print("Weeks to process:", to_process)
 
@@ -311,8 +270,7 @@ def main():
 
     print(f"Weeks requiring processing: {[get_report_key(y, w) for y, w in to_process]}\n")
 
-    # Load the model once and reuse it across all weeks
-    print("Loading MLX Model…")
+    print("Loading MLX Model...")
     model, tokenizer = load("lmstudio-community/DeepSeek-R1-0528-Qwen3-8B-MLX-4bit")
     llm = MLXLocalLLM(model=model, tokenizer=tokenizer, max_tokens=500)
 
