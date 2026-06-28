@@ -31,6 +31,11 @@ class MLXLocalLLM(LLM):
     tokenizer: Any
     max_tokens: int = 2048
 
+    @property
+    def _llm_type(self) -> str:
+        return "mlx_local"
+
+
     def _call(
         self,
         prompt: str,
@@ -39,12 +44,9 @@ class MLXLocalLLM(LLM):
         **kwargs: Any,
     ) -> str:
         stop_sequences = stop or [
-            "<|endoftext|>",
             "<|im_end|>",
-            "\nUser:",
-            "\nuser:",
-            "\nHuman:",
-            "\nAssistant:",
+            "<|endoftext|>",
+            "</think>",
         ]
 
         output_tokens = []
@@ -56,23 +58,21 @@ class MLXLocalLLM(LLM):
             max_tokens=self.max_tokens,
         ):
             token_text = response.text
+            output_tokens.append(token_text)
             print(token_text, end="", flush=True)
 
-            output_tokens.append(token_text)
             current_output = "".join(output_tokens)
-
-            for seq in stop_sequences:
-                if seq in current_output:
-                    current_output = current_output[:current_output.index(seq)]
-                    print()
-                    return current_output.strip()
+            if any(seq in current_output for seq in stop_sequences):
+                break
 
         print()
-        return "".join(output_tokens).strip()
+        result = "".join(output_tokens).strip()
 
-    @property
-    def _llm_type(self) -> str:
-        return "mlx_local"
+        for seq in stop_sequences:
+            if seq in result:
+                result = result[:result.index(seq)].strip()
+
+        return result
 
 # ==========================================
 # 2. Processed Entries Database
