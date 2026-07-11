@@ -22,6 +22,11 @@ DAILY_DIR       = os.path.join(JOURNAL_DIR, "daily")
 WEEKLY_DIR      = os.path.join(JOURNAL_DIR, "weekly")
 PROCESSED_DB_PATH = os.path.join(JOURNAL_DIR, "processed_entries.json")
 
+# Reasoning models like R1 can burn a lot of tokens on the <think> block
+# before ever reaching the final answer. If max_tokens is too low, generation
+# gets cut off mid-thought and </think> never appears in the output.
+DEFAULT_MAX_TOKENS = 4096
+
 # ==========================================
 # 1. Custom LangChain Wrapper for MLX
 # ==========================================
@@ -29,12 +34,28 @@ class MLXLocalLLM(LLM):
     """A custom LangChain wrapper for Apple MLX models."""
     model: Any
     tokenizer: Any
-    max_tokens: int = 2048
+    max_tokens: int = DEFAULT_MAX_TOKENS
 
     @property
     def _llm_type(self) -> str:
         return "mlx_local"
 
+    def _format_prompt(self, prompt: str) -> str:
+        """Apply the model's chat template so it's properly cued into a
+        fresh assistant turn. Without this, reasoning models are less
+        consistent about opening/closing the <think> block."""
+        try:
+            messages = [{"role": "user", "content": prompt}]
+            return self.tokenizer.apply_chat_template(
+                messages,
+                tokenize=False,
+                add_generation_prompt=True,
+            )
+        except Exception as e:
+            # Fall back to the raw prompt if the tokenizer has no chat
+            # template (e.g. a base model), but make the fallback visible.
+            print(f"  [warn] apply_chat_template failed ({e}); using raw prompt")
+            return prompt
 
     def _call(
         self,
@@ -46,15 +67,16 @@ class MLXLocalLLM(LLM):
         stop_sequences = stop or [
             "<|im_end|>",
             "<|endoftext|>",
-            "</think>",
         ]
+
+        formatted_prompt = self._format_prompt(prompt)
 
         output_tokens = []
 
         for response in stream_generate(
             self.model,
             self.tokenizer,
-            prompt=prompt,
+            prompt=formatted_prompt,
             max_tokens=self.max_tokens,
         ):
             token_text = response.text
@@ -68,9 +90,36 @@ class MLXLocalLLM(LLM):
         print()
         result = "".join(output_tokens).strip()
 
+        # Strip any trailing stop sequences first
         for seq in stop_sequences:
             if seq in result:
                 result = result[:result.index(seq)].strip()
+
+        has_open_think = "<think>" in result
+        has_close_think = "</think>" in result
+
+        if has_open_think and not has_close_think:
+            # Generation was cut off before the model finished reasoning.
+            # Returning the raw thinking text here would silently pollute
+            # the markdown output, so surface it loudly instead.
+            print(
+                "  [WARNING] Output was truncated mid-<think> block "
+                f"(max_tokens={self.max_tokens}). No final answer was reached.\n"
+                "  Consider increasing max_tokens or shortening the input."
+            )
+            return (
+                "[GENERATION TRUNCATED: the model ran out of tokens while "
+                "still reasoning and never produced a final answer. "
+                "Re-run with a higher max_tokens value.]"
+            )
+
+        match = re.search(r"</think>\s*(.*)", result, re.DOTALL)
+        if match:
+            result = match.group(1).strip()
+        elif has_close_think is False and has_open_think is False:
+            # No think tags at all — either the template suppressed them
+            # or this isn't a reasoning-style response. Use as-is.
+            pass
 
         return result
 
@@ -236,6 +285,11 @@ def process_week(
     print("  Analysing patterns and generating summary...")
     response = chain.invoke({"journal_entries": journal_text})
 
+    if response.startswith("[GENERATION TRUNCATED"):
+        print(f"  Skipping write for {report_key}: generation was truncated. "
+              f"Not marking as processed so it will retry next run.")
+        return
+
     output_path = write_weekly_report(report_key, response)
     print(f"  Report written -> {output_path}")
 
@@ -272,7 +326,7 @@ def main():
 
     print("Loading MLX Model...")
     model, tokenizer = load("lmstudio-community/DeepSeek-R1-0528-Qwen3-8B-MLX-4bit")
-    llm = MLXLocalLLM(model=model, tokenizer=tokenizer, max_tokens=1200)
+    llm = MLXLocalLLM(model=model, tokenizer=tokenizer, max_tokens=DEFAULT_MAX_TOKENS)
 
     for year, week in to_process:
         process_week(year, week, grouped[(year, week)], llm, db)
